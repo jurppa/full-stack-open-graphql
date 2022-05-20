@@ -5,13 +5,18 @@ import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 const EditAuthor = () => {
   const [name, setName] = useState("");
 
-  const [born, setBorn] = useState("");
+  const [born, setBorn] = useState(null);
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
       console.log(error);
     },
   });
+  const handleEditBirthYear = () => {
+    editAuthor({ variables: { name: name, setBornTo: born } });
+    setName("");
+    setBorn(null);
+  };
   return (
     <>
       <div>
@@ -19,7 +24,7 @@ const EditAuthor = () => {
         <input
           type="text"
           value={name}
-          onChange={({ target }) => name(target.value)}
+          onChange={({ target }) => setName(target.value)}
         />
       </div>
       <div>
@@ -30,7 +35,7 @@ const EditAuthor = () => {
           onChange={({ target }) => setBorn(target.valueAsNumber)}
         />
       </div>
-      <button>update author</button>
+      <button onClick={() => handleEditBirthYear()}>update author</button>
     </>
   );
 };

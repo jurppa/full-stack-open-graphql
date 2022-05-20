@@ -27,8 +27,8 @@ const Authors = (props) => {
             </tr>
           ))}
         </tbody>
-        <EditAuthor />
       </table>
+      <EditAuthor />
     </div>
   );
 };

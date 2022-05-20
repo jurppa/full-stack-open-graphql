@@ -166,7 +166,6 @@ const resolvers = {
         };
 
         authors = authors.concat(newAuthor);
-        console.log("authortest: ", authors);
       }
 
       const bookToAdd = {
@@ -175,8 +174,6 @@ const resolvers = {
       };
 
       books = books.concat(bookToAdd);
-
-      console.log("exists:  ", books);
     },
     editAuthor: (root, args) => {
       const authorExists = authors.find((a) => a.name === args.name);
