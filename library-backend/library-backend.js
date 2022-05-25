@@ -58,7 +58,7 @@ const typeDefs = gql`
       title: String!
       published: Int!
       genres: [String!]!
-    ): Book!
+    ): Book
     editAuthor(name: String!, setBornTo: Int!): Author
     createUser(username: String!, favoriteGenre: String!): User
     login(username: String!, password: String!): Token
@@ -111,6 +111,7 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
+      console.log(args);
       const currentUser = context.currentUser;
 
       if (!currentUser) {
@@ -135,6 +136,7 @@ const resolvers = {
           });
         }
       }
+      console.log(newAuthor);
       const bookToAdd = new Book({
         ...args,
         author: authorExists || newAuthor,

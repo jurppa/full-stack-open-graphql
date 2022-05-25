@@ -26,7 +26,7 @@ const App = () => {
       {token ? (
         <NewBook show={page === "add"} />
       ) : (
-        <Login show={page === "login"} />
+        <Login show={page === "login"} setToken={setToken} />
       )}
     </div>
   );
