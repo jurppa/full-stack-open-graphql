@@ -1,16 +1,12 @@
 import Select from "react-select";
-const Genres = ({ genres, selectedGenre, setGenreToShow }) => {
-  const options = genres.map((a) => {
+const Genres = ({ genreArray, setGenreToShow }) => {
+  const options = genreArray.map((a) => {
     return { value: a, label: a };
   });
 
   return (
     <>
-      <Select
-        defaultValue={selectedGenre}
-        onChange={setGenreToShow}
-        options={options}
-      />
+      <Select onChange={setGenreToShow} options={options} />
     </>
   );
 };

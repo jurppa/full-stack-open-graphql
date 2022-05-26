@@ -120,6 +120,7 @@ const resolvers = {
       });
       return authorsWithBookCount;
     },
+
     me: async (root, args, context) => context.currentUser,
   },
   Mutation: {

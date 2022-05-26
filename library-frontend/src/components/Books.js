@@ -15,6 +15,11 @@ const Books = (props) => {
   }
 
   const books = results.data.allBooks;
+  let genreArray = [];
+  books.forEach((a) => genreArray.push(...a.genres));
+  const booksToShow = genreToShow
+    ? books.filter((a) => a.includes(genreToShow))
+    : books;
   return (
     <div>
       <h2>books</h2>
@@ -26,7 +31,7 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((a) => (
+          {booksToShow.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -35,6 +40,7 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
+      <Genres genreArray={genreArray} setGenreToShow={setGenreToShow} />
     </div>
   );
 };
