@@ -9,7 +9,7 @@ const EditAuthor = ({ authors }) => {
     return { value: a.name, label: a.name };
   });
   const [selectedAuthor, setSelectedAuthor] = useState(null);
-  const [born, setBorn] = useState(null);
+  const [born, setBorn] = useState("");
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
@@ -20,7 +20,7 @@ const EditAuthor = ({ authors }) => {
     editAuthor({
       variables: { name: selectedAuthor.value, setBornTo: born },
     });
-    setBorn(null);
+    setBorn("");
   };
 
   return (

@@ -5,7 +5,7 @@ import Login from "./components/Login";
 import NewBook from "./components/NewBook";
 
 const App = () => {
-  const [page, setPage] = useState("authors");
+  const [page, setPage] = useState("login");
   const [token, setToken] = useState(null);
   return (
     <div>

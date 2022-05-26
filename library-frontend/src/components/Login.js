@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LOGIN } from "../queries";
 
 //
@@ -8,17 +8,25 @@ const Login = ({ show, setToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [login] = useMutation(LOGIN, {
+  const [login, result] = useMutation(LOGIN, {
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const handleLogin = async () => {
-    try {
-      const result = await await login({ variables: { username, password } });
+  useEffect(() => {
+    if (result.data) {
       const token = result.data.login.value;
       setToken(token);
+      localStorage.setItem("libraryDb", token);
+    }
+  }, [result.data]); // eslint-disable-line
+  const handleLogin = async () => {
+    try {
+      const result = await login({ variables: { username, password } });
+      const token = result.data.login.value;
+      setToken(token);
+      localStorage.setItem("libraryToken", token);
     } catch (error) {
       console.log("Error: ", error);
     }

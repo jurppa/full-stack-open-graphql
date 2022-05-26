@@ -9,6 +9,7 @@ const Authors = (props) => {
     return null;
   }
   const authors = result.data.allAuthors;
+  console.log("authors: ", authors);
   return (
     <div>
       <h2>authors</h2>
