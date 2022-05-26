@@ -107,7 +107,19 @@ const resolvers = {
       }
       return await Book.find({}).populate("author");
     },
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => {
+      const authors = await Author.find({});
+      const books = await Book.find({}).populate("author");
+
+      const authorsWithBookCount = authors.map((a) => {
+        const count = books.filter(
+          (book) => book.author.name === a.name
+        ).length;
+
+        return { name: a.name, id: a._id, born: a.born, bookCount: count };
+      });
+      return authorsWithBookCount;
+    },
     me: async (root, args, context) => context.currentUser,
   },
   Mutation: {
