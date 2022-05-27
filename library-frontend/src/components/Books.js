@@ -17,9 +17,11 @@ const Books = (props) => {
   const books = results.data.allBooks;
   let genreArray = [];
   books.forEach((a) => genreArray.push(...a.genres));
-  const booksToShow = genreToShow
-    ? books.filter((a) => a.includes(genreToShow))
-    : books;
+  const booksToShow =
+    genreToShow && genreToShow.value !== "all"
+      ? books.filter((a) => a.genres.includes(genreToShow.value))
+      : books;
+
   return (
     <div>
       <h2>books</h2>
