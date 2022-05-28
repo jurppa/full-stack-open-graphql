@@ -5,35 +5,30 @@ const Recommended = ({ favoriteGenres, show }) => {
   console.log(favoriteGenres);
 
   const results = useQuery(ALL_BOOKS, {
-    variables: favoriteGenres,
-    skip: !favoriteGenres,
-    update: (cache, response) => {},
+    variables: { genreToSearch: favoriteGenres },
+    fetchPolicy: "no-cache",
   });
 
+  console.log(results);
+  if (!show || results.loading) return null;
   const recommendedBooks = results.data.allBooks;
   console.log(recommendedBooks);
-  if (!show) return null;
 
   return (
     <div>
-      <h2>recommended books</h2>
+      <h2>recommended books for your favorite genre "{favoriteGenres}"</h2>
 
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {recommendedBooks.map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author.name}</td>
-              <td>{a.published}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div>
+        {recommendedBooks.map((a) => (
+          <div key={a.title}>
+            <p>
+              <h2>{a.title}</h2>
+              <div>by {a.author.name}</div>
+              <span>published {a.published}</span>
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
