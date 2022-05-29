@@ -1,5 +1,4 @@
 const { gql } = require("apollo-server");
-
 const typeDefs = gql`
   type Author {
     name: String!
@@ -42,6 +41,8 @@ const typeDefs = gql`
   type Token {
     value: String!
   }
+  type Subscription {
+    bookAdded: [Book!]
+  }
 `;
-
 module.exports = typeDefs;

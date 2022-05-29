@@ -1,35 +1,30 @@
-const {
-  ApolloServer,
-  gql,
-  UserInputError,
-  AuthenticationError,
-} = require("apollo-server");
-const { v1: uuid } = require("uuid");
+const { ApolloServer } = require("apollo-server-express");
+const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core");
+const express = require("express");
+const http = require("http");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+
+const typeDefs = require("./schema");
+const { execute, subscribe } = require("graphql");
+const { SubscriptionServer } = require("subscriptions-transport-ws");
+const { gql, UserInputError, AuthenticationError } = require("apollo-server");
 const mongoose = require("mongoose");
 const Book = require("./models/book");
 const Author = require("./models/author");
-
 const User = require("./models/user");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = "NEED_HERE_A_SECRET_KEY";
 const MONGODB_URI = "mongodb://127.0.0.1:27017/librarydb";
-console.log("connecting to", MONGODB_URI);
+console.log("connecting to mongodb", MONGODB_URI);
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log("connected to db"))
+  .then(() => console.log("connected to mongodb"))
   .catch((error) => console.log(`${error.message} failed to connect to db`));
 
-/*
- * Suomi:
- * Saattaisi olla järkevämpää assosioida kirja ja sen tekijä tallettamalla kirjan yhteyteen tekijän nimen sijaan tekijän id
- * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
- *
- * English:
- * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
- * However, for simplicity, we will store the author's name in connection with the book
- */
+// Schema
 
+// Resolvers
 const resolvers = {
   Query: {
     bookCount: async () => await Book.collection.countDocuments(),
@@ -37,7 +32,6 @@ const resolvers = {
     allBooks: async (root, args) => {
       if (args.author && args.genre) {
         const authorToSearch = await Author.findOne({ name: args.author });
-        //
 
         let filteredBooks = await Book.find({
           author: authorToSearch.id,
@@ -166,19 +160,38 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: async ({ req }) => {
-    const auth = req ? req.headers.authorization : null;
-    if (auth && auth.toLowerCase().startsWith("bearer ")) {
-      const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET);
-      const currentUser = await User.findById(decodedToken.id);
-      return { currentUser };
-    }
-  },
-});
+// Create express server
 
-server.listen().then(({ url }) => {
-  console.log(`Server ready at ${url}`);
-});
+const start = async () => {
+  const app = express();
+  const httpServer = http.createServer(app);
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+  const server = new ApolloServer({
+    schema,
+    context: async ({ req }) => {
+      const auth = req ? req.headers.authorization : null;
+      if (auth && auth.toLowerCase().startsWith("bearer ")) {
+        const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET);
+        const currentUser = await User.findById(decodedToken.id);
+        return { currentUser };
+      }
+    },
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
+
+  await server.start();
+
+  server.applyMiddleware({
+    app,
+    path: "/",
+  });
+
+  const PORT = 4000;
+
+  httpServer.listen(PORT, () =>
+    console.log(`Server is now running on http://localhost:${PORT}`)
+  );
+};
+start();
