@@ -42,7 +42,7 @@ const typeDefs = gql`
     value: String!
   }
   type Subscription {
-    bookAdded: [Book!]
+    bookAdded: Book!
   }
 `;
 module.exports = typeDefs;

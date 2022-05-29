@@ -3,12 +3,24 @@ import Authors from "./components/Authors";
 import Books from "./components/Books";
 import Login from "./components/Login";
 import NewBook from "./components/NewBook";
-import Recommended from "./components/Recommended";
 
+import Recommended from "./components/Recommended";
+import {
+  useQuery,
+  useMutation,
+  useSubscription,
+  useApolloClient,
+} from "@apollo/client";
+import { BOOK_ADDED } from "./queries";
 const App = () => {
   const [page, setPage] = useState("login");
   const [token, setToken] = useState(null);
   const [me, setMe] = useState(null);
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      alert(subscriptionData.data.title);
+    },
+  });
   console.log(me);
   return (
     <div>

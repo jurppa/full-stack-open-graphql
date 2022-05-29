@@ -7,13 +7,15 @@ const { makeExecutableSchema } = require("@graphql-tools/schema");
 const typeDefs = require("./schema");
 const { execute, subscribe } = require("graphql");
 const { SubscriptionServer } = require("subscriptions-transport-ws");
-const { gql, UserInputError, AuthenticationError } = require("apollo-server");
+const { UserInputError, AuthenticationError } = require("apollo-server");
 const mongoose = require("mongoose");
 const Book = require("./models/book");
 const Author = require("./models/author");
 const User = require("./models/user");
 const jwt = require("jsonwebtoken");
 
+const { PubSub } = require("graphql-subscriptions");
+const pubsub = new PubSub();
 const JWT_SECRET = "NEED_HERE_A_SECRET_KEY";
 const MONGODB_URI = "mongodb://127.0.0.1:27017/librarydb";
 console.log("connecting to mongodb", MONGODB_URI);
@@ -112,8 +114,11 @@ const resolvers = {
           invalidArgs: args,
         });
       }
+      pubsub.publish("BOOK_ADDED", { bookAdded: bookToAdd });
+
       return bookToAdd;
     },
+
     editAuthor: async (root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
@@ -158,6 +163,12 @@ const resolvers = {
       return { value: jwt.sign(userForToken, JWT_SECRET) };
     },
   },
+
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
+    },
+  },
 };
 
 // Create express server
@@ -167,7 +178,17 @@ const start = async () => {
   const httpServer = http.createServer(app);
 
   const schema = makeExecutableSchema({ typeDefs, resolvers });
-
+  const subscriptionServer = SubscriptionServer.create(
+    {
+      schema,
+      execute,
+      subscribe,
+    },
+    {
+      server: httpServer,
+      path: "",
+    }
+  );
   const server = new ApolloServer({
     schema,
     context: async ({ req }) => {
@@ -178,7 +199,18 @@ const start = async () => {
         return { currentUser };
       }
     },
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ],
   });
 
   await server.start();
