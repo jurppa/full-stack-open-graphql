@@ -45,7 +45,6 @@ const resolvers = {
       }
       if (args.author) {
         const authorToSearch = await Author.findOne({ name: args.author });
-        console.log(authorToSearch);
         if (authorToSearch) {
           return await Book.find({ author: authorToSearch.id }).populate(
             "author"
@@ -77,7 +76,6 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
-      console.log("addbook: ", args);
       const currentUser = context.currentUser;
 
       if (!currentUser) {
@@ -102,7 +100,6 @@ const resolvers = {
           });
         }
       }
-      console.log(newAuthor);
       const bookToAdd = new Book({
         ...args,
         author: authorExists || newAuthor,
