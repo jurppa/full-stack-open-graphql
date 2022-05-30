@@ -5,7 +5,7 @@ import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from "../queries";
 const NewBook = (props) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [published, setPublished] = useState(null);
+  const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
   const [addBook] = useMutation(ADD_BOOK, {
@@ -21,11 +21,9 @@ const NewBook = (props) => {
   const submit = async (event) => {
     event.preventDefault();
 
-    console.log("add book...");
-
     await addBook({ variables: { title, author, published, genres } });
     setTitle("");
-    setPublished(null);
+    setPublished("");
     setAuthor("");
     setGenres([]);
     setGenre("");

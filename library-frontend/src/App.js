@@ -5,29 +5,41 @@ import Login from "./components/Login";
 import NewBook from "./components/NewBook";
 
 import Recommended from "./components/Recommended";
-import {
-  useQuery,
-  useMutation,
-  useSubscription,
-  useApolloClient,
-} from "@apollo/client";
-import { BOOK_ADDED } from "./queries";
+import { useSubscription, useApolloClient } from "@apollo/client";
+import { ALL_BOOKS, BOOK_ADDED } from "./queries";
 const App = () => {
-  const [page, setPage] = useState("login");
+  const [page, setPage] = useState("books");
   const [token, setToken] = useState(null);
   const [me, setMe] = useState(null);
+  const [notification, setNotification] = useState("");
+  const client = useApolloClient();
+
   useSubscription(BOOK_ADDED, {
     onSubscriptionData: ({ subscriptionData }) => {
-      alert(subscriptionData.data.title);
+      const { bookAdded } = subscriptionData.data;
+      setNotification(
+        `📒 New book was added: ${bookAdded.title} by ${bookAdded.author.name}`
+      );
+      setTimeout(() => {
+        setNotification("");
+      }, 2500);
+      client.cache.updateQuery(
+        { query: ALL_BOOKS },
+
+        ({ allBooks }) => {
+          return {
+            allBooks: allBooks.concat(bookAdded),
+          };
+        }
+      );
     },
   });
-  console.log(me);
   return (
     <div>
       <div>
         <button onClick={() => setPage("authors")}>authors</button>
         <button onClick={() => setPage("books")}>books</button>
-        {token ? (
+        {token && me ? (
           <button onClick={() => setPage("add")}>add book {me.username}</button>
         ) : (
           <button onClick={() => setPage("login")}>login</button>
@@ -36,7 +48,7 @@ const App = () => {
           <button onClick={() => setPage("recommended")}>recommended</button>
         )}
       </div>
-
+      <div>{notification}</div>
       <Authors show={page === "authors"} />
 
       <Books show={page === "books"} />

@@ -9,10 +9,8 @@ const Recommended = ({ favoriteGenres, show }) => {
     fetchPolicy: "no-cache",
   });
 
-  console.log(results);
   if (!show || results.loading) return null;
   const recommendedBooks = results.data.allBooks;
-  console.log(recommendedBooks);
 
   return (
     <div>
@@ -21,11 +19,9 @@ const Recommended = ({ favoriteGenres, show }) => {
       <div>
         {recommendedBooks.map((a) => (
           <div key={a.title}>
-            <p>
-              <h2>{a.title}</h2>
-              <div>by {a.author.name}</div>
-              <span>published {a.published}</span>
-            </p>
+            <h2>{a.title}</h2>
+            <div>by {a.author.name}</div>
+            <span>published {a.published}</span>
           </div>
         ))}
       </div>
